@@ -41,8 +41,8 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QWebView" name="webView">
-          <property name="url">
+         <widget class="WebView" name="webView" native="true">
+          <property name="url" stdset="0">
            <url>
             <string>about:blank</string>
            </url>
@@ -81,7 +81,7 @@
      <x>0</x>
      <y>0</y>
      <width>659</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -589,9 +589,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>WebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>pyhtmleditor/webview</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
