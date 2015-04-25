@@ -29,6 +29,9 @@ try:
     from pyhtmleditor.highlighter import Highlighter
     from pyhtmleditor.ui.htmleditor_ui import Ui_MainWindow
     from pyhtmleditor.ui.inserthtmldialog_ui import Ui_Dialog
+    from pyhtmleditor.webelementinspector import WebElementInspector
+    from pyhtmleditor.domexplorer import DomExplorer
+    from pyhtmleditor.webview import WebView
 except ImportError, err:
     sys.stderr.write("Error: %s%s" % (str(err), os.linesep))
     sys.exit(1)
@@ -48,9 +51,25 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
         self.insertHtmlDialog = None
         self.tabWidget.setTabText(0, "Normal View")
         self.tabWidget.setTabText(1, "HTML Source")
+
         self.connect(self.tabWidget,
                 SIGNAL("currentChanged(int)"), self.changeTab)
         self.resize(800, 600)
+
+        self.connect(self.webView,
+                SIGNAL("webElementClicked(const QWebElement&)"), self.selectWebElement)
+
+        self.webElementInspector = WebElementInspector("Element Inspector", self)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.webElementInspector)
+
+        self.connect(self.webElementInspector,
+                SIGNAL("webElementChanged()"), self.selectedWebElementChanged)
+
+        self.domExplorer = DomExplorer("Dom Explorer", self)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.domExplorer)
+
+        self.connect(self.domExplorer,
+                SIGNAL("webElementClicked(const QWebElement&)"), self.selectWebElement)
 
         self.highlighter = Highlighter(self.plainTextEdit.document())
 
@@ -497,7 +516,9 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
         self.webView.setContent(data, "text/html")
         self.webView.page().setContentEditable(True)
         self.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-        self.connect(self.webView, SIGNAL("linkClicked(QUrl)"), self.openLink)
+        #self.connect(self.webView, SIGNAL("linkClicked(QUrl)"), self.openLink)
+        self.domExplorer.setDocument(self.webView.page().mainFrame().documentElement())
+        self.webElementInspector.setWebElement(None)
 
         self.setCurrentFileName(f)
         return True
@@ -516,3 +537,11 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
         if fileName.isEmpty() or fileName.startsWith(QLatin1String(":/")):
             allowSave = False
         self.actionFileSave.setEnabled(allowSave)
+
+    def selectedWebElementChanged(self):
+      self.sourceDirty = True
+
+    def selectWebElement(self, webelement):
+      self.domExplorer.selectWebElement(webelement)
+      self.webView.selectWebElement(webelement)
+      self.webElementInspector.setWebElement(webelement)
