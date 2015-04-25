@@ -53,7 +53,6 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         pos = 0
 
         while (pos < length):
-
             if state == State_Text:
                 while (pos < length):
                     ch = text.at(pos)
@@ -67,10 +66,9 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                                 state = State_TagStart
                         break
                     elif ch.toAscii() == "&":
-                        start = pos
-                        while pos < length:
-                            if text.at(pos + 1).toAscii() != ";":
-                                self.setFormat(start, pos - start, self.m_colors[Entity])
+                        end = text.indexOf(";", pos+1)
+                        self.setFormat(pos, end - pos, self.m_colors[Entity])
+                        pos = end + 1
                     else:
                         pos += 1
 
@@ -218,10 +216,9 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                                 state = State_TagStart
                         break
                     elif ch.toAscii() == "&":
-                        start = pos
-                        while pos < length:
-                            if text.at(pos + 1) != ";":
-                                self.setFormat(start, pos - start, self.m_colors[Entity])
+                        end = text.indexOf(";", pos+1)
+                        self.setFormat(pos, end - pos, self.m_colors[Entity])
+                        pos = end + 1
                     else:
                         pos += 1
 
