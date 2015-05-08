@@ -54,7 +54,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
         self.plainTextEdit = QtGui.QPlainTextEdit(self.tab_2)
         self.plainTextEdit.setFrameShape(QtGui.QFrame.NoFrame)
-        self.plainTextEdit.setReadOnly(True)
         self.plainTextEdit.setObjectName(_fromUtf8("plainTextEdit"))
         self.verticalLayout_3.addWidget(self.plainTextEdit)
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))

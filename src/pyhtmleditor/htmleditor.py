@@ -56,6 +56,11 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
                 SIGNAL("currentChanged(int)"), self.changeTab)
         self.resize(800, 600)
 
+        self.connect(self.webView, SIGNAL("loadFinished(bool)"), self._webViewLoadFinished)
+
+        self.connect(self.plainTextEdit,
+                SIGNAL("modificationChanged(bool)"), self._plainTextEditChanged)
+
         self.connect(self.webView,
                 SIGNAL("webElementClicked(const QWebElement&)"), self.selectWebElement)
 
@@ -479,9 +484,13 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
             self.changeTab(1)
 
     def changeTab(self, index):
-        if self.sourceDirty and index == 1:
-            content = self.webView.page().mainFrame().toHtml()
-            self.plainTextEdit.setPlainText(content)
+        if self.sourceDirty:
+            if index == 0:
+                source = self.plainTextEdit.toPlainText()
+                self.webView.page().mainFrame().setHtml(source)
+            elif index == 1:
+                content = self.webView.page().mainFrame().toHtml()
+                self.plainTextEdit.setPlainText(content)
             self.sourceDirty = False
 
     def openLink(self, url):
@@ -517,8 +526,6 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
         self.webView.page().setContentEditable(True)
         self.webView.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         #self.connect(self.webView, SIGNAL("linkClicked(QUrl)"), self.openLink)
-        self.domExplorer.setDocument(self.webView.page().mainFrame().documentElement())
-        self.webElementInspector.setWebElement(None)
 
         self.setCurrentFileName(f)
         return True
@@ -545,3 +552,11 @@ class HtmlEditor(QMainWindow, Ui_MainWindow):
       self.domExplorer.selectWebElement(webelement)
       self.webView.selectWebElement(webelement)
       self.webElementInspector.setWebElement(webelement)
+
+    def _plainTextEditChanged(self):
+      self.sourceDirty = True
+
+    def _webViewLoadFinished(self, ok):
+      if ok:
+        self.domExplorer.setDocument(self.webView.page().mainFrame().documentElement())
+        self.webElementInspector.setWebElement(None)
